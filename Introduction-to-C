@@ -1,0 +1,609 @@
+# C# Concepts
+
+## 1. Introduction to C#
+
+C# is a modern, object-oriented, strongly typed programming language developed by Microsoft. It is mainly used with the .NET platform to build console, web, desktop, cloud, mobile and game applications.
+
+```csharp
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Hello, C#!");
+    }
+}
+```
+
+## 2. Variables and Data Types
+
+A variable is a named storage location used to hold a value.
+
+| Data type | Purpose | Example |
+|---|---|---|
+| `int` | Integer number | `10` |
+| `double` | Decimal number | `10.5` |
+| `float` | Small decimal number | `10.5f` |
+| `decimal` | High-precision decimal | `100.50m` |
+| `char` | One character | `'A'` |
+| `bool` | Boolean value | `true` or `false` |
+| `string` | Text | `"Hello"` |
+| `var` | Implicitly typed local variable | `var name = "Riya";` |
+
+```csharp
+int age = 20;
+double percentage = 85.5;
+string name = "Riya";
+bool isPassed = true;
+```
+
+### Value Types and Reference Types
+
+- **Value types** store the actual value. Example: `int`, `double`, `bool`, `struct`.
+- **Reference types** store a reference to the object. Example: `string`, `class`, `array`, `interface`.
+
+## 3. Input and Output
+
+```csharp
+Console.Write("Enter your name: ");
+string name = Console.ReadLine();
+Console.WriteLine("Hello, " + name);
+```
+
+- `Console.Write()` prints text without a new line.
+- `Console.WriteLine()` prints text and moves to the next line.
+- `Console.ReadLine()` reads a string from the user.
+
+## 4. Operators
+
+### Arithmetic Operators
+
+`+`, `-`, `*`, `/`, `%`
+
+### Relational Operators
+
+`==`, `!=`, `>`, `<`, `>=`, `<=`
+
+### Logical Operators
+
+`&&` (AND), `||` (OR), `!` (NOT)
+
+### Assignment Operators
+
+`=`, `+=`, `-=`, `*=`, `/=`, `%=`
+
+## 5. Conditional Statements
+
+### `if` Statement
+
+```csharp
+if (marks >= 40)
+{
+    Console.WriteLine("Pass");}
+else
+{
+    Console.WriteLine("Fail");
+}
+```
+
+### `switch` Statement
+
+```csharp
+switch (day)
+{
+    case 1:
+        Console.WriteLine("Monday");
+        break;
+    default:
+        Console.WriteLine("Invalid day");
+        break;
+}
+```
+
+## 6. Loops
+
+### `for` Loop
+
+```csharp
+for (int i = 1; i <= 5; i++)
+{
+    Console.WriteLine(i);
+}
+```
+
+### `while` Loop
+
+```csharp
+int i = 1;
+while (i <= 5)
+{
+    Console.WriteLine(i);
+    i++;
+}
+```
+
+### `do-while` Loop
+
+```csharp
+int i = 1;
+do
+{
+    Console.WriteLine(i);
+    i++;
+}
+while (i <= 5);
+```
+
+### `foreach` Loop
+
+```csharp
+int[] numbers = { 10, 20, 30 };
+
+foreach (int number in numbers)
+{
+    Console.WriteLine(number);
+}
+```
+
+## 7. Arrays
+
+An array stores multiple values of the same data type.
+
+```csharp
+int[] marks = new int[3];
+marks[0] = 70;
+marks[1] = 80;
+marks[2] = 90;
+
+string[] names = { "Riya", "Raj", "Mita" };
+```
+
+Array indexes start from zero. The first element is at index `0`.
+
+## 8. Methods
+
+A method is a named block of code that performs a specific task.
+
+```csharp
+static int Add(int a, int b)
+{
+    return a + b;
+}
+
+int result = Add(10, 20);
+```
+
+### Method Components
+
+- `static` means the method belongs to the class.
+- The return type is the type of value returned by the method.
+- `void` means no value is returned.
+- Parameters receive input values.
+- `return` sends a value back to the caller.
+
+## 9. Classes and Objects
+
+A class is a blueprint used to define the properties and behavior of objects.
+
+```csharp
+class Student
+{
+    public int RollNumber;
+    public string Name;
+
+    public void Display()
+    {
+        Console.WriteLine(RollNumber + " " + Name);
+    }
+}
+```
+
+An object is an instance of a class.
+
+```csharp
+Student student = new Student();
+student.RollNumber = 101;
+student.Name = "Riya";
+student.Display();
+```
+
+## 10. Constructors
+
+A constructor initializes an object when it is created.
+
+```csharp
+class Student
+{
+    public int RollNumber;
+
+    public Student(int rollNumber)
+    {
+        RollNumber = rollNumber;
+    }
+}
+
+Student student = new Student(101);
+```
+
+### Constructor Characteristics
+
+- It has the same name as the class.
+- It does not have a return type.
+- It is called automatically with `new`.
+- It can be overloaded.
+
+## 11. Properties
+
+Properties control access to private fields.
+
+```csharp
+class Person
+{
+    private string name;
+
+    public string Name
+    {
+        get { return name; }
+        set { name = value; }
+    }
+}
+```
+
+## 12. Access Modifiers
+
+| Modifier | Accessible from |
+|---|---|
+| `public` | Anywhere |
+| `private` | Same class |
+| `protected` | Same class and derived classes |
+| `internal` | Same assembly |
+| `protected internal` | Same assembly or derived class |
+| `private protected` | Derived classes in the same assembly |
+
+## 13. Static Members
+
+Static members belong to the class rather than a specific object.
+
+```csharp
+class Counter
+{
+    public static int Count;
+}
+
+Counter.Count++;
+```
+
+## 14. `this` Keyword
+
+`this` refers to the current instance of a class.
+
+```csharp
+class Student
+{
+    private int rollNumber;
+
+    public Student(int rollNumber)
+    {
+        this.rollNumber = rollNumber;
+    }
+}
+```
+
+## 15. Inheritance
+
+Inheritance allows a class to reuse members from another class.
+
+```csharp
+class Animal
+{
+    public void Eat()
+    {
+        Console.WriteLine("Eating");
+    }
+}
+
+class Dog : Animal
+{
+    public void Bark()
+    {
+        Console.WriteLine("Barking");
+    }
+}
+```
+
+- Base class: `Animal`
+- Derived class: `Dog`
+- C# supports single inheritance for classes.
+
+## 16. Polymorphism
+
+Polymorphism allows the same interface to have different implementations.
+
+### Method Overloading
+
+Two or more methods in the same class have the same name but different parameters.
+
+```csharp
+int Add(int a, int b) => a + b;
+double Add(double a, double b) => a + b;
+```
+
+### Method Overriding
+
+A derived class provides a new implementation of a base-class method.
+
+```csharp
+class Animal
+{
+    public virtual void Sound()
+    {
+        Console.WriteLine("Some sound");
+    }
+}
+
+class Cat : Animal
+{
+    public override void Sound()
+    {
+        Console.WriteLine("Meow");
+    }
+}
+```
+
+## 17. Abstraction
+
+Abstraction exposes essential features while hiding implementation details.
+
+### Abstract Class
+
+```csharp
+abstract class Shape
+{
+    public abstract double Area();
+}
+
+class Circle : Shape
+{
+    public double Radius;
+
+    public override double Area()
+    {
+        return Math.PI * Radius * Radius;
+    }
+}
+```
+
+### Interface
+
+An interface defines a contract that a class must implement.
+
+```csharp
+interface IAnimal
+{
+    void MakeSound();
+}
+
+class Cat : IAnimal
+{
+    public void MakeSound()
+    {
+        Console.WriteLine("Meow");
+    }
+}
+```
+
+## 18. Encapsulation
+
+Encapsulation means grouping data and methods in a class and restricting direct access to important data using access modifiers and properties.
+
+```csharp
+class BankAccount
+{
+    private double balance;
+
+    public void Deposit(double amount)
+    {
+        if (amount > 0)
+            balance += amount;
+    }
+
+    public double GetBalance()
+    {
+        return balance;
+    }
+}
+```
+
+## 19. Exception Handling
+
+Exceptions represent errors that occur during program execution.
+
+```csharp
+try
+{
+    int number = Convert.ToInt32(Console.ReadLine());
+    Console.WriteLine(100 / number);
+}
+catch (DivideByZeroException)
+{
+    Console.WriteLine("Cannot divide by zero.");
+}
+catch (FormatException)
+{
+    Console.WriteLine("Please enter a valid number.");
+}
+finally
+{
+    Console.WriteLine("Program finished.");
+}
+```
+
+## 20. Collections
+
+Collections are used to store and manage groups of objects.
+
+```csharp
+using System.Collections.Generic;
+
+List<int> numbers = new List<int>();
+numbers.Add(10);
+numbers.Add(20);
+
+foreach (int number in numbers)
+{
+    Console.WriteLine(number);
+}
+```
+
+Common collection types include:
+
+- `List<T>`
+- `Dictionary<TKey, TValue>`
+- `Queue<T>`
+- `Stack<T>`
+- `HashSet<T>`
+
+## 21. LINQ
+
+LINQ is used to query collections, arrays and databases using C# syntax.
+
+```csharp
+int[] numbers = { 10, 25, 30, 45, 60 };
+
+var evenNumbers = from number in numbers
+                  where number % 2 == 0
+                  select number;
+
+foreach (int number in evenNumbers)
+{
+    Console.WriteLine(number);
+}
+```
+
+## 22. Common C# Keywords
+
+| Keyword | Purpose |
+|---|---|
+| `class` | Declares a class |
+| `new` | Creates an object or array |
+| `this` | Refers to the current object |
+| `base` | Refers to the base class |
+| `static` | Declares class-level members |
+| `readonly` | Makes a field assignable only during declaration or in a constructor |
+| `const` | Declares a compile-time constant |
+| `null` | Represents no object reference |
+| `is` | Tests a type |
+| `as` | Attempts a type conversion without throwing an exception |
+| `sealed` | Prevents a class from being inherited or a virtual method from being overridden further |
+
+## 23. Important Viva Questions and Answers
+
+### Q1. What is C#?
+
+C# is a modern, strongly typed, object-oriented programming language used with the .NET platform.
+
+### Q2. What is a variable?
+
+A variable is a named memory location used to store data.
+
+### Q3. What is the difference between `int` and `string`?
+
+- `int` stores whole numbers.
+- `string` stores text.
+
+### Q4. What is a data type?
+
+A data type defines the kind of value a variable can store and the operations that can be performed on it.
+
+### Q5. What is the difference between `Console.Write()` and `Console.WriteLine()`?
+
+- `Console.Write()` prints without starting a new line.
+- `Console.WriteLine()` prints and moves to the next line.
+
+### Q6. What is a class?
+
+A class is a blueprint or template that defines fields, properties and methods.
+
+### Q7. What is an object?
+
+An object is an instance of a class.
+
+### Q8. What is the use of the `new` keyword?
+
+The `new` keyword creates a new object or array.
+
+### Q9. What is a constructor?
+
+A constructor is a special method that initializes an object. It has the same name as the class and no return type.
+
+### Q10. What is a method?
+
+A method is a block of code that performs a specific task.
+
+### Q11. What is the difference between method overloading and overriding?
+
+- Overloading has the same method name with different parameters in the same class.
+- Overriding provides a new implementation for an inherited virtual or abstract method.
+
+### Q12. What is inheritance?
+
+Inheritance allows a derived class to reuse fields and methods from a base class.
+
+### Q13. What is encapsulation?
+
+Encapsulation is the process of wrapping data and methods together and controlling access to the data.
+
+### Q14. What is abstraction?
+
+Abstraction hides implementation details and exposes only essential functionality.
+
+### Q15. What is polymorphism?
+
+Polymorphism means that one interface or operation can have multiple implementations.
+
+### Q16. What is an interface?
+
+An interface is a contract containing method and property declarations that implementing classes must provide.
+
+### Q17. What is the difference between an abstract class and an interface?
+
+- An abstract class can contain abstract and implemented members and fields.
+- An interface defines a contract and does not normally provide instance fields.
+- A class can inherit only one class but can implement multiple interfaces.
+
+### Q18. What is an exception?
+
+An exception is an unexpected runtime problem that disrupts normal program execution.
+
+### Q19. What is the purpose of `try-catch-finally`?
+
+- `try` contains code that may raise an exception.
+- `catch` handles an exception.
+- `finally` contains code that runs whether or not an exception occurs.
+
+### Q20. What is the difference between a list and an array?
+
+- An array has a fixed size.
+- A `List<T>` can grow or shrink dynamically.
+
+### Q21. What is LINQ?
+
+LINQ stands for Language-Integrated Query. It provides a consistent syntax for querying collections and other data sources.
+
+### Q22. What is the default accessibility of class members?
+
+Class members are private by default if no access modifier is specified.
+
+### Q23. What is the difference between `value type` and `reference type`?
+
+- A value type stores its value directly.
+- A reference type stores a reference to the object's location.
+
+### Q24. What is a static member?
+
+A static member belongs to the class and is shared by all objects of the class.
+
+### Q25. What is namespace in C#?
+
+A namespace organizes related classes and prevents naming conflicts.
