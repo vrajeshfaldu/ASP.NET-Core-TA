@@ -1,47 +1,25 @@
-# Lab 5 — ASP.NET Core Status Codes
+# Lab 5 — Student API and HTTP Status Codes
 
-## A. HTTP Status Code Explanation
+## A. HTTP Status Codes
 
-HTTP status codes describe the result of an API request.
-
-### 2xx — Success
+An HTTP status code tells the client what happened when the API handled a request.
 
 | Code | Name | Meaning |
 |---:|---|---|
-| `200` | OK | The request was successful and data is returned. |
-| `201` | Created | A new resource was successfully created. |
-| `204` | No Content | The operation was successful, but no response body is returned. |
+| `200` | OK | The request succeeded and data is returned. |
+| `201` | Created | A new student was created. |
+| `204` | No Content | The operation succeeded, with no response body. |
+| `400` | Bad Request | The request contains invalid data. |
+| `404` | Not Found | The requested student does not exist. |
+| `409` | Conflict | A student with that ID already exists. |
 
-### 4xx — Client Error
-
-| Code | Name | Meaning |
-|---:|---|---|
-| `400` | Bad Request | The request data or parameters are invalid. |
-| `404` | Not Found | The requested resource does not exist. |
-| `409` | Conflict | The request conflicts with the current state. |
-
-### 5xx — Server Error
-
-| Code | Name | Meaning |
-|---:|---|---|
-| `500` | Internal Server Error | An unexpected server-side error occurred. |
-
-ASP.NET Core provides methods for commonly used status codes:
-
-```csharp
-Ok(value);       // 200 OK
-Created(...);    // 201 Created
-NoContent();     // 204 No Content
-BadRequest();    // 400 Bad Request
-NotFound();      // 404 Not Found
-Conflict();      // 409 Conflict
-```
+In ASP.NET Core, common responses include `Ok(...)`, `NotFound()`, `BadRequest(...)`, `Conflict(...)`, and `NoContent()`. You can also return a specific status code with `StatusCode(...)`.
 
 ---
 
-## B. Question 1 — Create a Student Model
+## B. Question 1 — Create the Student Model
 
-Create `Models/Student.cs`.
+Create `Models/Student.cs`:
 
 ```csharp
 namespace lab5.Models
@@ -53,454 +31,106 @@ namespace lab5.Models
         public string Name { get; set; } = string.Empty;
 
         public int Age { get; set; }
-
-        public string Course { get; set; } = string.Empty;
     }
 }
 ```
 
 ### Explanation
 
-- `Id` is the unique student identifier.
+- `Id` identifies each student.
 - `Name` stores the student's name.
 - `Age` stores the student's age.
-- `Course` stores the course name.
+- `string.Empty` provides a default value for `Name`.
 
 ---
 
-## C. Question 2 — Pre-load Student Records
+## C. Question 2 — Create the Students Controller
 
-Add a static list inside `StudentsController`.
-
-```csharp
-private static readonly List<Student> Students = new()
-{
-    new Student
-    {
-        Id = 1,
-        Name = "Aarav Patel",
-        Age = 20,
-        Course = "CSE"
-    },
-    new Student
-    {
-        Id = 2,
-        Name = "Diya Shah",
-        Age = 21,
-        Course = "IT"
-    },
-    new Student
-    {
-        Id = 3,
-        Name = "Kabir Mehta",
-        Age = 20,
-        Course = "CSE"
-    },
-    new Student
-    {
-        Id = 4,
-        Name = "Isha Desai",
-        Age = 22,
-        Course = "ECE"
-    },
-    new Student
-    {
-        Id = 5,
-        Name = "Vivaan Joshi",
-        Age = 21,
-        Course = "IT"
-    }
-};
-```
-
-### Explanation
-
-- `static` stores the list for the lifetime of the application.
-- `readonly` prevents the list variable from being reassigned.
-- The list acts as an in-memory database.
-
----
-
-## D. Question 3 — Get All Students
-
-### Status Code
-
-`GET /api/students` normally returns:
-
-- `200 OK` when students are returned.
-- `204 No Content` when the list is empty.
-
-Add this action to `StudentsController`.
+Create `Controllers/StudentController.cs`:
 
 ```csharp
-[HttpGet]
-public ActionResult<List<Student>> GetAllStudents()
-{
-    if (Students.Count == 0)
-    {
-        return NoContent();
-    }
-
-    return Ok(Students);
-}
-```
-
-### Complete Initial Controller
-
-Create `Controllers/StudentsController.cs`:
-
-```csharp
+using System.Collections.Generic;
+using System.Linq;
 using lab5.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lab5.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class StudentsController : ControllerBase
+    [ApiController]
+    public class StudentController : ControllerBase
     {
-        private static readonly List<Student> Students = new()
-        {
-            new Student
-            {
-                Id = 1,
-                Name = "Aarav Patel",
-                Age = 20,
-                Course = "CSE"
-            },
-            new Student
-            {
-                Id = 2,
-                Name = "Diya Shah",
-                Age = 21,
-                Course = "IT"
-            },
-            new Student
-            {
-                Id = 3,
-                Name = "Kabir Mehta",
-                Age = 20,
-                Course = "CSE"
-            },
-            new Student
-            {
-                Id = 4,
-                Name = "Isha Desai",
-                Age = 22,
-                Course = "ECE"
-            },
-            new Student
-            {
-                Id = 5,
-                Name = "Vivaan Joshi",
-                Age = 21,
-                Course = "IT"
-            }
-        };
+        private static List<Student> students = new List<Student>();
 
         [HttpGet]
-        public ActionResult<List<Student>> GetAllStudents()
+        public IActionResult GetAllStudents()
         {
-            if (Students.Count == 0)
-            {
-                return NoContent();
-            }
-
-            return Ok(Students);
-        }
-    }
-}
-```
-
----
-
-## E. Question 4 — Get a Student by ID
-
-### Status Codes
-
-- `200 OK`: Student found.
-- `404 Not Found`: Student ID does not exist.
-
-```csharp
-[HttpGet("{id:int}")]
-public ActionResult<Student> GetStudentById(int id)
-{
-    Student? student = Students
-        .FirstOrDefault(student => student.Id == id);
-
-    if (student == null)
-    {
-        return NotFound($"Student with ID {id} was not found.");
-    }
-
-    return Ok(student);
-}
-```
-
-### Example Endpoints
-
-```text
-GET /api/students/1
-```
-
-```text
-GET /api/students/99
-```
-
-The second request returns `404 Not Found`.
-
----
-
-## F. Question 5 — Add a New Student
-
-### Status Codes
-
-- `201 Created`: Student was added successfully.
-- `400 Bad Request`: Student data is invalid.
-
-```csharp
-[HttpPost]
-public ActionResult<Student> CreateStudent(Student student)
-{
-    if (student == null ||
-        string.IsNullOrWhiteSpace(student.Name) ||
-        student.Age <= 0)
-    {
-        return BadRequest("Invalid student data.");
-    }
-
-    if (Students.Any(existing => existing.Id == student.Id))
-    {
-        return Conflict($"Student with ID {student.Id} already exists.");
-    }
-
-    Students.Add(student);
-
-    return CreatedAtAction(
-        nameof(GetStudentById),
-        new { id = student.Id },
-        student);
-}
-```
-
-### Explanation
-
-- `201 Created` means a resource was successfully created.
-- `BadRequest()` returns `400`.
-- `Conflict()` returns `409` when the ID already exists.
-- `CreatedAtAction()` includes a link to the new student's endpoint.
-
-### Example JSON
-
-```json
-{
-  "id": 6,
-  "name": "Neel Mehta",
-  "age": 20,
-  "course": "CSE"
-}
-```
-
----
-
-## G. Question 6 — Update a Student
-
-### Status Codes
-
-- `204 No Content`: Student updated successfully.
-- `404 Not Found`: Student does not exist.
-- `400 Bad Request`: Updated data is invalid.
-
-```csharp
-[HttpPut("{id:int}")]
-public IActionResult UpdateStudent(int id, Student updatedStudent)
-{
-    Student? existingStudent = Students
-        .FirstOrDefault(student => student.Id == id);
-
-    if (existingStudent == null)
-    {
-        return NotFound($"Student with ID {id} was not found.");
-    }
-
-    if (string.IsNullOrWhiteSpace(updatedStudent.Name) ||
-        updatedStudent.Age <= 0)
-    {
-        return BadRequest("Invalid student data.");
-    }
-
-    existingStudent.Name = updatedStudent.Name;
-    existingStudent.Age = updatedStudent.Age;
-    existingStudent.Course = updatedStudent.Course;
-
-    return NoContent();
-}
-```
-
----
-
-## H. Question 7 — Delete a Student
-
-### Status Codes
-
-- `204 No Content`: Student deleted successfully.
-- `404 Not Found`: Student does not exist.
-
-```csharp
-[HttpDelete("{id:int}")]
-public IActionResult DeleteStudent(int id)
-{
-    Student? student = Students
-        .FirstOrDefault(student => student.Id == id);
-
-    if (student == null)
-    {
-        return NotFound($"Student with ID {id} was not found.");
-    }
-
-    Students.Remove(student);
-
-    return NoContent();
-}
-```
-
----
-
-## I. Complete Controller
-
-```csharp
-using lab5.Models;
-using Microsoft.AspNetCore.Mvc;
-
-namespace lab5.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public class StudentsController : ControllerBase
-    {
-        private static readonly List<Student> Students = new()
-        {
-            new Student
-            {
-                Id = 1,
-                Name = "Aarav Patel",
-                Age = 20,
-                Course = "CSE"
-            },
-            new Student
-            {
-                Id = 2,
-                Name = "Diya Shah",
-                Age = 21,
-                Course = "IT"
-            },
-            new Student
-            {
-                Id = 3,
-                Name = "Kabir Mehta",
-                Age = 20,
-                Course = "CSE"
-            },
-            new Student
-            {
-                Id = 4,
-                Name = "Isha Desai",
-                Age = 22,
-                Course = "ECE"
-            },
-            new Student
-            {
-                Id = 5,
-                Name = "Vivaan Joshi",
-                Age = 21,
-                Course = "IT"
-            }
-        };
-
-        [HttpGet]
-        public ActionResult<List<Student>> GetAllStudents()
-        {
-            if (Students.Count == 0)
-            {
-                return NoContent();
-            }
-
-            return Ok(Students);
+            return StatusCode(200, students);
         }
 
-        [HttpGet("{id:int}")]
-        public ActionResult<Student> GetStudentById(int id)
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            Student? student = Students
-                .FirstOrDefault(student => student.Id == id);
+            var student = students.FirstOrDefault(s => s.Id == id);
 
             if (student == null)
             {
-                return NotFound($"Student with ID {id} was not found.");
+                return NotFound();
             }
 
-            return Ok(student);
+            return StatusCode(200, student);
         }
 
         [HttpPost]
-        public ActionResult<Student> CreateStudent(Student student)
+        public IActionResult CreateStudent([FromBody] Student student)
         {
-            if (student == null ||
-                string.IsNullOrWhiteSpace(student.Name) ||
-                student.Age <= 0)
+            if (student == null)
             {
                 return BadRequest("Invalid student data.");
             }
 
-            if (Students.Any(existing => existing.Id == student.Id))
+            if (students.Any(s => s.Id == student.Id))
             {
-                return Conflict($"Student with ID {student.Id} already exists.");
+                return Conflict("Student already exists.");
             }
 
-            Students.Add(student);
+            students.Add(student);
 
-            return CreatedAtAction(
-                nameof(GetStudentById),
-                new { id = student.Id },
-                student);
+            return StatusCode(201, student);
         }
 
-        [HttpPut("{id:int}")]
-        public IActionResult UpdateStudent(int id, Student updatedStudent)
+        [HttpPut("{id}")]
+        public IActionResult UpdateStudent(int id, [FromBody] Student updatedStudent)
         {
-            Student? existingStudent = Students
-                .FirstOrDefault(student => student.Id == id);
-
-            if (existingStudent == null)
-            {
-                return NotFound($"Student with ID {id} was not found.");
-            }
-
-            if (string.IsNullOrWhiteSpace(updatedStudent.Name) ||
-                updatedStudent.Age <= 0)
+            if (updatedStudent == null)
             {
                 return BadRequest("Invalid student data.");
             }
 
-            existingStudent.Name = updatedStudent.Name;
-            existingStudent.Age = updatedStudent.Age;
-            existingStudent.Course = updatedStudent.Course;
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id:int}")]
-        public IActionResult DeleteStudent(int id)
-        {
-            Student? student = Students
-                .FirstOrDefault(student => student.Id == id);
+            var student = students.FirstOrDefault(s => s.Id == id);
 
             if (student == null)
             {
-                return NotFound($"Student with ID {id} was not found.");
+                return NotFound();
             }
 
-            Students.Remove(student);
+            student.Name = updatedStudent.Name;
+            student.Age = updatedStudent.Age;
+
+            return StatusCode(200, student);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteStudent(int id)
+        {
+            var student = students.FirstOrDefault(s => s.Id == id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            students.Remove(student);
 
             return NoContent();
         }
@@ -508,21 +138,55 @@ namespace lab5.Controllers
 }
 ```
 
+### Explanation
+
+- `[Route("api/[controller]")]` sets the base route to `/api/student`.
+- `[HttpGet]` retrieves all students.
+- `[HttpGet("{id}")]` retrieves one student by ID.
+- `[HttpPost]` adds a student. The `[FromBody]` attribute reads the student from the request body.
+- `[HttpPut("{id}")]` updates the student with the matching ID.
+- `[HttpDelete("{id}")]` removes the student with the matching ID.
+- `FirstOrDefault()` searches for a student and returns `null` if no match is found.
+- The `students` list is static and stored in memory. It starts empty and resets when the application restarts.
+
 ---
 
-## J. Endpoint Summary
+## D. Endpoint Summary
 
-| Operation | Endpoint | Success Status |
-|---|---|---:|
-| Get all students | `GET /api/students` | `200` or `204` |
-| Get student by ID | `GET /api/students/1` | `200` |
-| Create student | `POST /api/students` | `201` |
-| Update student | `PUT /api/students/1` | `204` |
-| Delete student | `DELETE /api/students/1` | `204` |
+| Operation | HTTP Method | URL | Response |
+|---|---|---|---|
+| Get all students | `GET` | `/api/student` | `200 OK` |
+| Get a student by ID | `GET` | `/api/student/1` | `200 OK` or `404 Not Found` |
+| Create a student | `POST` | `/api/student` | `201 Created`, `400 Bad Request`, or `409 Conflict` |
+| Update a student | `PUT` | `/api/student/1` | `200 OK`, `400 Bad Request`, or `404 Not Found` |
+| Delete a student | `DELETE` | `/api/student/1` | `204 No Content` or `404 Not Found` |
 
-| Error | Status Code |
-|---|---:|
-| Invalid input | `400 Bad Request` |
-| Resource not found | `404 Not Found` |
-| Duplicate ID | `409 Conflict` |
-| Unexpected server error | `500 Internal Server Error` |
+---
+
+## E. Example POST Request
+
+Send a `POST` request to `/api/student` with this JSON body:
+
+```json
+{
+  "id": 1,
+  "name": "Aarav Patel",
+  "age": 20
+}
+```
+
+A successful request returns status `201 Created`.
+
+## F. Example PUT Request
+
+Send a `PUT` request to `/api/student/1` with this JSON body:
+
+```json
+{
+  "id": 1,
+  "name": "Aarav Patel",
+  "age": 21
+}
+```
+
+The ID in the URL selects the student to update.
