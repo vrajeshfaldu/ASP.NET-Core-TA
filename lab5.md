@@ -1,141 +1,153 @@
-# Lab 5 — ASP.NET Core Fundamentals
+# Lab 5 — ASP.NET Core Status Codes
 
-## A. Basic Concepts
+## A. HTTP Status Code Explanation
 
-### 1. ASP.NET Core Web API
+HTTP status codes describe the result of an API request.
 
-ASP.NET Core Web API is used to create HTTP services that can return data to applications such as browsers or mobile applications.
+### 2xx — Success
 
-### 2. Controller
+| Code | Name | Meaning |
+|---:|---|---|
+| `200` | OK | The request was successful and data is returned. |
+| `201` | Created | A new resource was successfully created. |
+| `204` | No Content | The operation was successful, but no response body is returned. |
 
-A controller handles incoming HTTP requests and returns an HTTP response.
+### 4xx — Client Error
 
-Example:
+| Code | Name | Meaning |
+|---:|---|---|
+| `400` | Bad Request | The request data or parameters are invalid. |
+| `404` | Not Found | The requested resource does not exist. |
+| `409` | Conflict | The request conflicts with the current state. |
+
+### 5xx — Server Error
+
+| Code | Name | Meaning |
+|---:|---|---|
+| `500` | Internal Server Error | An unexpected server-side error occurred. |
+
+ASP.NET Core provides methods for commonly used status codes:
 
 ```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
-{
-}
+Ok(value);       // 200 OK
+Created(...);    // 201 Created
+NoContent();     // 204 No Content
+BadRequest();    // 400 Bad Request
+NotFound();      // 404 Not Found
+Conflict();      // 409 Conflict
 ```
-
-- `[ApiController]` enables API-specific behavior.
-- `[Route("api/[controller]")]` defines the route.
-- `ControllerBase` provides helper methods such as `Ok()` and `NotFound()`.
-
-### 3. HTTP Verbs
-
-| Verb | Common Purpose |
-|---|---|
-| `GET` | Retrieve data |
-| `POST` | Create data |
-| `PUT` | Update data |
-| `DELETE` | Remove data |
-
-### 4. ActionResult
-
-`ActionResult<T>` allows a controller to return:
-
-- A typed object
-- `Ok()`
-- `NotFound()`
-- Other HTTP responses
 
 ---
 
-## B. Questions
+## B. Question 1 — Create a Student Model
 
-### Question 1: Create a Book model
-
-Create a `Book` model with:
-
-- `Id`
-- `Title`
-- `Author`
-- `Price`
+Create `Models/Student.cs`.
 
 ```csharp
 namespace lab5.Models
 {
-    public class Book
+    public class Student
     {
         public int Id { get; set; }
 
-        public string Title { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
-        public string Author { get; set; } = string.Empty;
+        public int Age { get; set; }
 
-        public decimal Price { get; set; }
+        public string Course { get; set; } = string.Empty;
     }
 }
 ```
 
-**Explanation:**
+### Explanation
 
-- `Id` uniquely identifies a book.
-- `Title` stores the book title.
-- `Author` stores the author's name.
-- `decimal` is suitable for storing currency values.
+- `Id` is the unique student identifier.
+- `Name` stores the student's name.
+- `Age` stores the student's age.
+- `Course` stores the course name.
 
 ---
 
-### Question 2: Create five sample records
+## C. Question 2 — Pre-load Student Records
 
-Create a static list in `BooksController`:
+Add a static list inside `StudentsController`.
 
 ```csharp
-private static readonly List<Book> Books = new()
+private static readonly List<Student> Students = new()
 {
-    new Book
+    new Student
     {
         Id = 1,
-        Title = "C# Programming",
-        Author = "John Smith",
-        Price = 500
+        Name = "Aarav Patel",
+        Age = 20,
+        Course = "CSE"
     },
-    new Book
+    new Student
     {
         Id = 2,
-        Title = "ASP.NET Core",
-        Author = "David Brown",
-        Price = 650
+        Name = "Diya Shah",
+        Age = 21,
+        Course = "IT"
     },
-    new Book
+    new Student
     {
         Id = 3,
-        Title = "Database Systems",
-        Author = "Maria Garcia",
-        Price = 575
+        Name = "Kabir Mehta",
+        Age = 20,
+        Course = "CSE"
     },
-    new Book
+    new Student
     {
         Id = 4,
-        Title = "Data Structures",
-        Author = "Robert Wilson",
-        Price = 475
+        Name = "Isha Desai",
+        Age = 22,
+        Course = "ECE"
     },
-    new Book
+    new Student
     {
         Id = 5,
-        Title = "Cloud Computing",
-        Author = "Sarah Johnson",
-        Price = 700
+        Name = "Vivaan Joshi",
+        Age = 21,
+        Course = "IT"
     }
 };
 ```
 
-**Explanation:**
+### Explanation
 
-- `static` means only one copy of the collection is created.
-- `readonly` prevents the collection variable itself from being reassigned.
-- `new()` creates a list of `Book` objects.
+- `static` stores the list for the lifetime of the application.
+- `readonly` prevents the list variable from being reassigned.
+- The list acts as an in-memory database.
 
 ---
 
-### Question 3: Return all books
+## D. Question 3 — Get All Students
 
-Create `Controllers/BooksController.cs` and add:
+### Status Code
+
+`GET /api/students` normally returns:
+
+- `200 OK` when students are returned.
+- `204 No Content` when the list is empty.
+
+Add this action to `StudentsController`.
+
+```csharp
+[HttpGet]
+public ActionResult<List<Student>> GetAllStudents()
+{
+    if (Students.Count == 0)
+    {
+        return NoContent();
+    }
+
+    return Ok(Students);
+}
+```
+
+### Complete Initial Controller
+
+Create `Controllers/StudentsController.cs`:
 
 ```csharp
 using lab5.Models;
@@ -145,175 +157,216 @@ namespace lab5.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BooksController : ControllerBase
+    public class StudentsController : ControllerBase
     {
-        private static readonly List<Book> Books = new()
+        private static readonly List<Student> Students = new()
         {
-            new Book
+            new Student
             {
                 Id = 1,
-                Title = "C# Programming",
-                Author = "John Smith",
-                Price = 500
+                Name = "Aarav Patel",
+                Age = 20,
+                Course = "CSE"
             },
-            new Book
+            new Student
             {
                 Id = 2,
-                Title = "ASP.NET Core",
-                Author = "David Brown",
-                Price = 650
+                Name = "Diya Shah",
+                Age = 21,
+                Course = "IT"
             },
-            new Book
+            new Student
             {
                 Id = 3,
-                Title = "Database Systems",
-                Author = "Maria Garcia",
-                Price = 575
+                Name = "Kabir Mehta",
+                Age = 20,
+                Course = "CSE"
             },
-            new Book
+            new Student
             {
                 Id = 4,
-                Title = "Data Structures",
-                Author = "Robert Wilson",
-                Price = 475
+                Name = "Isha Desai",
+                Age = 22,
+                Course = "ECE"
             },
-            new Book
+            new Student
             {
                 Id = 5,
-                Title = "Cloud Computing",
-                Author = "Sarah Johnson",
-                Price = 700
+                Name = "Vivaan Joshi",
+                Age = 21,
+                Course = "IT"
             }
         };
 
         [HttpGet]
-        public ActionResult<List<Book>> GetAllBooks()
+        public ActionResult<List<Student>> GetAllStudents()
         {
-            return Ok(Books);
+            if (Students.Count == 0)
+            {
+                return NoContent();
+            }
+
+            return Ok(Students);
         }
     }
 }
 ```
 
-**Endpoint:**
-
-```text
-GET /api/books
-```
-
-**Response:**
-
-```json
-[
-  {
-    "id": 1,
-    "title": "C# Programming",
-    "author": "John Smith",
-    "price": 500
-  }
-]
-```
-
 ---
 
-### Question 4: Find a book by ID
+## E. Question 4 — Get a Student by ID
 
-Add the following action to `BooksController`:
+### Status Codes
+
+- `200 OK`: Student found.
+- `404 Not Found`: Student ID does not exist.
 
 ```csharp
 [HttpGet("{id:int}")]
-public ActionResult<Book> GetBookById(int id)
+public ActionResult<Student> GetStudentById(int id)
 {
-    Book? book = Books
-        .FirstOrDefault(book => book.Id == id);
+    Student? student = Students
+        .FirstOrDefault(student => student.Id == id);
 
-    if (book == null)
+    if (student == null)
     {
-        return NotFound($"Book with ID {id} was not found.");
+        return NotFound($"Student with ID {id} was not found.");
     }
 
-    return Ok(book);
+    return Ok(student);
 }
 ```
 
-**Endpoint:**
+### Example Endpoints
 
 ```text
-GET /api/books/2
+GET /api/students/1
 ```
 
-**Explanation:**
+```text
+GET /api/students/99
+```
 
-- `{id:int}` accepts an integer from the URL.
-- `FirstOrDefault()` returns the first matching book or `null`.
-- `NotFound()` returns HTTP status `404`.
-- `Ok()` returns HTTP status `200`.
+The second request returns `404 Not Found`.
 
 ---
 
-### Question 5: Search books by title
+## F. Question 5 — Add a New Student
 
-Add the following action:
+### Status Codes
+
+- `201 Created`: Student was added successfully.
+- `400 Bad Request`: Student data is invalid.
 
 ```csharp
-[HttpGet("search")]
-public ActionResult<List<Book>> SearchByTitle(string title)
+[HttpPost]
+public ActionResult<Student> CreateStudent(Student student)
 {
-    List<Book> result = Books
-        .Where(book =>
-            book.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
-        .ToList();
+    if (student == null ||
+        string.IsNullOrWhiteSpace(student.Name) ||
+        student.Age <= 0)
+    {
+        return BadRequest("Invalid student data.");
+    }
 
-    return Ok(result);
+    if (Students.Any(existing => existing.Id == student.Id))
+    {
+        return Conflict($"Student with ID {student.Id} already exists.");
+    }
+
+    Students.Add(student);
+
+    return CreatedAtAction(
+        nameof(GetStudentById),
+        new { id = student.Id },
+        student);
 }
 ```
 
-**Endpoint:**
+### Explanation
 
-```text
-GET /api/books/search?title=core
+- `201 Created` means a resource was successfully created.
+- `BadRequest()` returns `400`.
+- `Conflict()` returns `409` when the ID already exists.
+- `CreatedAtAction()` includes a link to the new student's endpoint.
+
+### Example JSON
+
+```json
+{
+  "id": 6,
+  "name": "Neel Mehta",
+  "age": 20,
+  "course": "CSE"
+}
 ```
-
-**Explanation:**
-
-- `Where()` filters the list.
-- `Contains()` checks for matching text.
-- `OrdinalIgnoreCase` makes the search case-insensitive.
-- `ToList()` converts the filtered result into a list.
 
 ---
 
-### Question 6: Return books with prices above a value
+## G. Question 6 — Update a Student
 
-Add the following action:
+### Status Codes
+
+- `204 No Content`: Student updated successfully.
+- `404 Not Found`: Student does not exist.
+- `400 Bad Request`: Updated data is invalid.
 
 ```csharp
-[HttpGet("price/{minimumPrice:decimal}")]
-public ActionResult<List<Book>> GetExpensiveBooks(decimal minimumPrice)
+[HttpPut("{id:int}")]
+public IActionResult UpdateStudent(int id, Student updatedStudent)
 {
-    List<Book> result = Books
-        .Where(book => book.Price >= minimumPrice)
-        .ToList();
+    Student? existingStudent = Students
+        .FirstOrDefault(student => student.Id == id);
 
-    return Ok(result);
+    if (existingStudent == null)
+    {
+        return NotFound($"Student with ID {id} was not found.");
+    }
+
+    if (string.IsNullOrWhiteSpace(updatedStudent.Name) ||
+        updatedStudent.Age <= 0)
+    {
+        return BadRequest("Invalid student data.");
+    }
+
+    existingStudent.Name = updatedStudent.Name;
+    existingStudent.Age = updatedStudent.Age;
+    existingStudent.Course = updatedStudent.Course;
+
+    return NoContent();
 }
 ```
 
-**Endpoint:**
+---
 
-```text
-GET /api/books/price/500
+## H. Question 7 — Delete a Student
+
+### Status Codes
+
+- `204 No Content`: Student deleted successfully.
+- `404 Not Found`: Student does not exist.
+
+```csharp
+[HttpDelete("{id:int}")]
+public IActionResult DeleteStudent(int id)
+{
+    Student? student = Students
+        .FirstOrDefault(student => student.Id == id);
+
+    if (student == null)
+    {
+        return NotFound($"Student with ID {id} was not found.");
+    }
+
+    Students.Remove(student);
+
+    return NoContent();
+}
 ```
-
-**Explanation:**
-
-- The route constraint `decimal` validates the parameter type.
-- `>=` includes books with the exact minimum price.
-- The result contains only books satisfying the condition.
 
 ---
 
-## C. Complete Controller
+## I. Complete Controller
 
 ```csharp
 using lab5.Models;
@@ -323,86 +376,133 @@ namespace lab5.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BooksController : ControllerBase
+    public class StudentsController : ControllerBase
     {
-        private static readonly List<Book> Books = new()
+        private static readonly List<Student> Students = new()
         {
-            new Book
+            new Student
             {
                 Id = 1,
-                Title = "C# Programming",
-                Author = "John Smith",
-                Price = 500
+                Name = "Aarav Patel",
+                Age = 20,
+                Course = "CSE"
             },
-            new Book
+            new Student
             {
                 Id = 2,
-                Title = "ASP.NET Core",
-                Author = "David Brown",
-                Price = 650
+                Name = "Diya Shah",
+                Age = 21,
+                Course = "IT"
             },
-            new Book
+            new Student
             {
                 Id = 3,
-                Title = "Database Systems",
-                Author = "Maria Garcia",
-                Price = 575
+                Name = "Kabir Mehta",
+                Age = 20,
+                Course = "CSE"
             },
-            new Book
+            new Student
             {
                 Id = 4,
-                Title = "Data Structures",
-                Author = "Robert Wilson",
-                Price = 475
+                Name = "Isha Desai",
+                Age = 22,
+                Course = "ECE"
             },
-            new Book
+            new Student
             {
                 Id = 5,
-                Title = "Cloud Computing",
-                Author = "Sarah Johnson",
-                Price = 700
+                Name = "Vivaan Joshi",
+                Age = 21,
+                Course = "IT"
             }
         };
 
         [HttpGet]
-        public ActionResult<List<Book>> GetAllBooks()
+        public ActionResult<List<Student>> GetAllStudents()
         {
-            return Ok(Books);
+            if (Students.Count == 0)
+            {
+                return NoContent();
+            }
+
+            return Ok(Students);
         }
 
         [HttpGet("{id:int}")]
-        public ActionResult<Book> GetBookById(int id)
+        public ActionResult<Student> GetStudentById(int id)
         {
-            Book? book = Books
-                .FirstOrDefault(book => book.Id == id);
+            Student? student = Students
+                .FirstOrDefault(student => student.Id == id);
 
-            if (book == null)
+            if (student == null)
             {
-                return NotFound($"Book with ID {id} was not found.");
+                return NotFound($"Student with ID {id} was not found.");
             }
 
-            return Ok(book);
+            return Ok(student);
         }
 
-        [HttpGet("search")]
-        public ActionResult<List<Book>> SearchByTitle(string title)
+        [HttpPost]
+        public ActionResult<Student> CreateStudent(Student student)
         {
-            List<Book> result = Books
-                .Where(book =>
-                    book.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            if (student == null ||
+                string.IsNullOrWhiteSpace(student.Name) ||
+                student.Age <= 0)
+            {
+                return BadRequest("Invalid student data.");
+            }
 
-            return Ok(result);
+            if (Students.Any(existing => existing.Id == student.Id))
+            {
+                return Conflict($"Student with ID {student.Id} already exists.");
+            }
+
+            Students.Add(student);
+
+            return CreatedAtAction(
+                nameof(GetStudentById),
+                new { id = student.Id },
+                student);
         }
 
-        [HttpGet("price/{minimumPrice:decimal}")]
-        public ActionResult<List<Book>> GetExpensiveBooks(decimal minimumPrice)
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateStudent(int id, Student updatedStudent)
         {
-            List<Book> result = Books
-                .Where(book => book.Price >= minimumPrice)
-                .ToList();
+            Student? existingStudent = Students
+                .FirstOrDefault(student => student.Id == id);
 
-            return Ok(result);
+            if (existingStudent == null)
+            {
+                return NotFound($"Student with ID {id} was not found.");
+            }
+
+            if (string.IsNullOrWhiteSpace(updatedStudent.Name) ||
+                updatedStudent.Age <= 0)
+            {
+                return BadRequest("Invalid student data.");
+            }
+
+            existingStudent.Name = updatedStudent.Name;
+            existingStudent.Age = updatedStudent.Age;
+            existingStudent.Course = updatedStudent.Course;
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteStudent(int id)
+        {
+            Student? student = Students
+                .FirstOrDefault(student => student.Id == id);
+
+            if (student == null)
+            {
+                return NotFound($"Student with ID {id} was not found.");
+            }
+
+            Students.Remove(student);
+
+            return NoContent();
         }
     }
 }
@@ -410,11 +510,19 @@ namespace lab5.Controllers
 
 ---
 
-## D. Complete Endpoint Summary
+## J. Endpoint Summary
 
-| Purpose | Endpoint |
-|---|---|
-| Get all books | `GET /api/books` |
-| Get book by ID | `GET /api/books/2` |
-| Search book title | `GET /api/books/search?title=core` |
-| Filter by minimum price | `GET /api/books/price/500` |
+| Operation | Endpoint | Success Status |
+|---|---|---:|
+| Get all students | `GET /api/students` | `200` or `204` |
+| Get student by ID | `GET /api/students/1` | `200` |
+| Create student | `POST /api/students` | `201` |
+| Update student | `PUT /api/students/1` | `204` |
+| Delete student | `DELETE /api/students/1` | `204` |
+
+| Error | Status Code |
+|---|---:|
+| Invalid input | `400 Bad Request` |
+| Resource not found | `404 Not Found` |
+| Duplicate ID | `409 Conflict` |
+| Unexpected server error | `500 Internal Server Error` |
