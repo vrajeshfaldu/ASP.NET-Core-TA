@@ -407,7 +407,7 @@ app.Run();
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Server=DESKTOP-VHV0JO9\\SQLEXPRESS;Database=CourseHubDB;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=your server;Database=CourseHubDB;Trusted_Connection=True;TrustServerCertificate=True;"
   }
 }
 ```
