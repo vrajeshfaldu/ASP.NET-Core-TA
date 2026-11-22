@@ -1,4 +1,4 @@
-# Lab 6: EF Core Indexes, Defaults, Constraints, and Migrations
+# Lab 7: EF Core Indexes, Defaults, Constraints, and Migrations
 
 ## Concepts to know first
 
